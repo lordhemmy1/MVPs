@@ -1,576 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Inventory Management System — offline-capable, browser-based business application." />
-  <meta name="theme-color" content="#4F46E5" />
-
-  <title>StockSense IMS</title>
-
-  <!-- PWA -->
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon" />
-  <link rel="apple-touch-icon" href="assets/images/icon-192.png" />
-
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Font Awesome 6 Free -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-
-  <!-- Application Stylesheets -->
-  <link rel="stylesheet" href="assets/css/main.css" />
-  <link rel="stylesheet" href="assets/css/print.css" media="print" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+    <link rel="apple-touch-icon" href="assets/images/logo-192.png">
+    <!-- Google Fonts + Font Awesome + Dexie + Chart.js + jsPDF + AutoTable + PapaParse + EmailJS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.4/dist/dexie.js" integrity="sha384-5LZkBlPxG0Q07Z8EZlujnCtwmPjP5sS9/n6Jd/EVy2D/lURFvI7L7sYt5Kz2tPq" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" integrity="sha384-2n7lZv9JFtqzOq+9C47MKRyh0v2Q1g8v7yODTgftqKlH6C7MkQ1NVr3fOq5fU4D" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkC4J7PL+I4DPId1eEwLgH53T4Wp2zTWBm7HfiKZ/qw/wRDyqF7pJY6WpTY3g==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js" integrity="sha512-ByrN+kFrJx1EfOJktJp97oY9E0JQ3iBzOqb1BmRltW9UHTk/XcWC7ZfU4zk0r1W1X7bAaWz4s2EOv2OuuqImnQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dsKCkMUH6cXvlOi81k6vEucXwuu1hVFAEuW78QWeHQz2JkY0fPpZuoXKcN2diPOoD9DmFtaZnokVbL1rUPeFFg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" integrity="sha384-4gq7R0KpWJYUl0F9j1T0lXRq5cRjHcZBKuxr+Y2Huk8mPkI6W4ZZMKslKzZFYz3+" crossorigin="anonymous"></script>
+    <title id="appTitle">Inventory Manager Pro</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/print.css" media="print">
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════
-       ACTIVATION OVERLAY
-       Shown on first load if no licence is stored.
-  ═══════════════════════════════════════════════ -->
-  <div id="activation-overlay" class="activation-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="activation-title">
-    <div class="activation-box">
-      <div class="activation-logo">
-        <img src="assets/images/logo-placeholder.png" alt="App Logo" id="activation-logo-img" />
-      </div>
-      <h1 id="activation-title" class="activation-title">Activate Your Licence</h1>
-      <p class="activation-subtitle">Enter your business name and licence key to unlock the application.</p>
-
-      <form id="activation-form" novalidate autocomplete="off">
+<!-- Activation Overlay (full-screen) -->
+<div id="activation-overlay" style="display: none;">
+    <div class="activation-card">
+        <h2><i class="fas fa-key"></i> Activate Software</h2>
+        <p>Enter your unique licence key to continue</p>
         <div class="form-group">
-          <label class="form-label" for="act-business-name">Business Name <span class="required">*</span></label>
-          <input
-            class="form-input"
-            type="text"
-            id="act-business-name"
-            name="business_name"
-            placeholder="e.g. Sunshine Pharmacy"
-            required
-            autocomplete="organization"
-          />
-          <span class="form-error-text" id="act-business-name-err"></span>
+            <label for="business-name">Business Name</label>
+            <input type="text" id="business-name" placeholder="Your business name" autocomplete="off">
         </div>
-
         <div class="form-group">
-          <label class="form-label" for="act-licence-key">Licence Key <span class="required">*</span></label>
-          <div class="input-icon-wrap">
-            <input
-              class="form-input"
-              type="text"
-              id="act-licence-key"
-              name="licence_key"
-              placeholder="XXXX-XXXX-XXXX-XXXX"
-              required
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <i class="fa-solid fa-key input-icon"></i>
-          </div>
-          <span class="form-error-text" id="act-licence-key-err"></span>
+            <label for="licence-key">Licence Key</label>
+            <input type="text" id="licence-key" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off">
         </div>
-
-        <div id="activation-error" class="alert alert-danger hidden" role="alert"></div>
-
-        <button type="submit" class="btn btn-primary btn-full" id="activate-btn">
-          <span class="btn-text">Activate</span>
-          <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-        </button>
-      </form>
-
-      <p class="activation-footer">
-        Need a licence key? Contact your vendor.
-      </p>
+        <button id="activate-btn" class="btn btn-primary">Activate</button>
+        <p id="activation-error" class="text-danger text-sm mt-2" style="display: none;"></p>
     </div>
-  </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════
-       LOGIN PAGE
-       Shown after activation, before auth.
-  ═══════════════════════════════════════════════ -->
-  <div id="login-page" class="login-page hidden" role="main">
-    <div class="login-card">
-      <div class="login-logo">
-        <img src="assets/images/logo-placeholder.png" alt="App Logo" id="login-logo-img" />
-      </div>
-      <h2 class="login-title" id="login-app-name">StockSense IMS</h2>
-      <p class="login-subtitle">Sign in to your account</p>
-
-      <!-- Rate-limit block message -->
-      <div id="login-blocked-msg" class="alert alert-danger hidden" role="alert">
-        Too many failed attempts. Please wait <strong id="lockout-countdown">15:00</strong>.
-      </div>
-
-      <form id="login-form" novalidate autocomplete="off">
-        <div class="form-group">
-          <label class="form-label" for="login-email">Email Address</label>
-          <div class="input-icon-wrap">
-            <input
-              class="form-input"
-              type="email"
-              id="login-email"
-              name="email"
-              placeholder="admin@app.com"
-              required
-              autocomplete="email"
-            />
-            <i class="fa-solid fa-envelope input-icon"></i>
-          </div>
-          <span class="form-error-text" id="login-email-err"></span>
+<!-- Main App Shell (hidden until activation and login) -->
+<div id="app" style="display: none;">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-area">
+                <img id="sidebar-logo" src="assets/images/logo-placeholder.png" alt="Logo" class="logo-img">
+                <span id="sidebar-business-name" class="logo-text">Inventory Manager</span>
+            </div>
+            <button id="sidebar-toggle" class="sidebar-toggle"><i class="fas fa-bars"></i></button>
         </div>
-
-        <div class="form-group">
-          <label class="form-label" for="login-password">Password</label>
-          <div class="input-icon-wrap">
-            <input
-              class="form-input"
-              type="password"
-              id="login-password"
-              name="password"
-              placeholder="••••••••"
-              required
-              autocomplete="current-password"
-            />
-            <i class="fa-solid fa-lock input-icon"></i>
-            <button type="button" class="password-toggle" id="login-pwd-toggle" aria-label="Toggle password visibility">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <span class="form-error-text" id="login-password-err"></span>
-        </div>
-
-        <div id="login-error" class="alert alert-danger hidden" role="alert"></div>
-
-        <button type="submit" class="btn btn-primary btn-full" id="login-btn">
-          <span class="btn-text"><i class="fa-solid fa-right-to-bracket"></i> Sign In</span>
-          <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-        </button>
-      </form>
-
-      <p class="login-footer">
-        <span id="login-business-name-display"></span>
-      </p>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════
-       FORCED PASSWORD CHANGE PAGE
-  ═══════════════════════════════════════════════ -->
-  <div id="change-password-page" class="login-page hidden" role="main">
-    <div class="login-card">
-      <div class="login-logo">
-        <i class="fa-solid fa-shield-halved" style="font-size:2.5rem;color:var(--color-primary);"></i>
-      </div>
-      <h2 class="login-title">Change Your Password</h2>
-      <p class="login-subtitle">For security, please set a new password before continuing.</p>
-
-      <form id="force-change-password-form" novalidate autocomplete="off">
-        <div class="form-group">
-          <label class="form-label" for="fcp-current">Current Password</label>
-          <div class="input-icon-wrap">
-            <input class="form-input" type="password" id="fcp-current" required autocomplete="current-password" placeholder="Current password" />
-            <i class="fa-solid fa-lock input-icon"></i>
-          </div>
-          <span class="form-error-text" id="fcp-current-err"></span>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="fcp-new">New Password</label>
-          <div class="input-icon-wrap">
-            <input class="form-input" type="password" id="fcp-new" required autocomplete="new-password" placeholder="Min 8 chars, upper, number, symbol" />
-            <i class="fa-solid fa-lock input-icon"></i>
-            <button type="button" class="password-toggle" id="fcp-new-toggle" aria-label="Toggle">
-              <i class="fa-solid fa-eye"></i>
-            </button>
-          </div>
-          <div class="progress-bar-wrap" id="fcp-strength-wrap">
-            <div class="progress-bar" id="fcp-strength-bar"></div>
-          </div>
-          <span class="form-helper-text" id="fcp-strength-label"></span>
-          <span class="form-error-text" id="fcp-new-err"></span>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="fcp-confirm">Confirm New Password</label>
-          <div class="input-icon-wrap">
-            <input class="form-input" type="password" id="fcp-confirm" required autocomplete="new-password" placeholder="Repeat new password" />
-            <i class="fa-solid fa-lock input-icon"></i>
-          </div>
-          <span class="form-error-text" id="fcp-confirm-err"></span>
-        </div>
-        <div id="fcp-error" class="alert alert-danger hidden" role="alert"></div>
-        <button type="submit" class="btn btn-primary btn-full" id="fcp-submit-btn">
-          <span class="btn-text"><i class="fa-solid fa-check"></i> Set New Password</span>
-          <span class="btn-spinner hidden"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════
-       MAIN APPLICATION SHELL
-       Hidden until authenticated.
-  ═══════════════════════════════════════════════ -->
-  <div id="app-shell" class="app-shell hidden">
-
-    <!-- ── SIDEBAR ── -->
-    <aside id="sidebar" class="sidebar" role="navigation" aria-label="Main Navigation">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <img src="assets/images/logo-placeholder.png" alt="Logo" id="sidebar-logo-img" class="sidebar-logo-img" />
-          <span class="sidebar-app-name" id="sidebar-app-name">StockSense</span>
-        </div>
-        <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close sidebar">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <nav class="sidebar-nav">
-        <ul class="sidebar-nav-list" role="list">
-
-          <li class="sidebar-nav-item" data-route="/dashboard" data-roles="admin,manager,staff">
-            <a href="#/dashboard" class="sidebar-nav-link" aria-label="Dashboard">
-              <i class="fa-solid fa-chart-pie sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Dashboard</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-section-label">INVENTORY</li>
-
-          <li class="sidebar-nav-item" data-route="/products" data-roles="admin,manager">
-            <a href="#/products" class="sidebar-nav-link" aria-label="Products">
-              <i class="fa-solid fa-boxes-stacked sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Products</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/categories" data-roles="admin,manager">
-            <a href="#/categories" class="sidebar-nav-link" aria-label="Categories">
-              <i class="fa-solid fa-tags sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Categories</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/suppliers" data-roles="admin,manager">
-            <a href="#/suppliers" class="sidebar-nav-link" aria-label="Suppliers">
-              <i class="fa-solid fa-truck sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Suppliers</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-section-label">STOCK</li>
-
-          <li class="sidebar-nav-item" data-route="/stock/in" data-roles="admin,manager">
-            <a href="#/stock/in" class="sidebar-nav-link" aria-label="Stock In">
-              <i class="fa-solid fa-arrow-down-to-line sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Stock In</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/stock/out" data-roles="admin,manager">
-            <a href="#/stock/out" class="sidebar-nav-link" aria-label="Stock Out">
-              <i class="fa-solid fa-arrow-up-from-line sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Stock Out</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/stock/adjust" data-roles="admin,manager">
-            <a href="#/stock/adjust" class="sidebar-nav-link" aria-label="Stock Adjustment">
-              <i class="fa-solid fa-sliders sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Adjustment</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/stock/history" data-roles="admin,manager,staff">
-            <a href="#/stock/history" class="sidebar-nav-link" aria-label="Stock History">
-              <i class="fa-solid fa-clock-rotate-left sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Movement History</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-section-label">SALES</li>
-
-          <li class="sidebar-nav-item" data-route="/sales/new" data-roles="admin,manager,staff">
-            <a href="#/sales/new" class="sidebar-nav-link" aria-label="New Sale">
-              <i class="fa-solid fa-cash-register sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">New Sale</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/sales" data-roles="admin,manager">
-            <a href="#/sales" class="sidebar-nav-link" aria-label="Sales History">
-              <i class="fa-solid fa-receipt sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Sales History</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-section-label">ANALYTICS</li>
-
-          <li class="sidebar-nav-item" data-route="/reports" data-roles="admin,manager">
-            <a href="#/reports" class="sidebar-nav-link" aria-label="Reports">
-              <i class="fa-solid fa-chart-bar sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Reports</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-section-label">SYSTEM</li>
-
-          <li class="sidebar-nav-item" data-route="/notifications" data-roles="admin,manager,staff">
-            <a href="#/notifications" class="sidebar-nav-link" aria-label="Notifications">
-              <i class="fa-solid fa-bell sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Notifications</span>
-              <span class="sidebar-badge" id="sidebar-notif-badge" style="display:none;"></span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/users" data-roles="admin">
-            <a href="#/users" class="sidebar-nav-link" aria-label="User Management">
-              <i class="fa-solid fa-users-gear sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Users</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/audit" data-roles="admin">
-            <a href="#/audit" class="sidebar-nav-link" aria-label="Audit Log">
-              <i class="fa-solid fa-file-shield sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Audit Log</span>
-            </a>
-          </li>
-
-          <li class="sidebar-nav-item" data-route="/settings" data-roles="admin">
-            <a href="#/settings" class="sidebar-nav-link" aria-label="Settings">
-              <i class="fa-solid fa-gear sidebar-nav-icon"></i>
-              <span class="sidebar-nav-label">Settings</span>
-            </a>
-          </li>
-
-        </ul>
-      </nav>
-
-      <div class="sidebar-footer">
-        <div class="sidebar-user-mini" id="sidebar-user-mini">
-          <div class="avatar avatar-sm" id="sidebar-user-avatar"></div>
-          <div class="sidebar-user-mini-info">
-            <span class="sidebar-user-mini-name" id="sidebar-user-mini-name"></span>
-            <span class="sidebar-user-mini-role" id="sidebar-user-mini-role"></span>
-          </div>
-        </div>
-      </div>
+        <nav class="sidebar-nav" id="sidebar-nav">
+            <a href="#/dashboard" class="sidebar-nav-item" data-route="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+            <a href="#/products" class="sidebar-nav-item" data-route="products"><i class="fas fa-boxes"></i> <span>Products</span></a>
+            <a href="#/stock/in" class="sidebar-nav-item" data-route="stock"><i class="fas fa-dolly"></i> <span>Stock</span></a>
+            <a href="#/categories" class="sidebar-nav-item" data-route="categories"><i class="fas fa-tags"></i> <span>Categories</span></a>
+            <a href="#/suppliers" class="sidebar-nav-item" data-route="suppliers"><i class="fas fa-truck"></i> <span>Suppliers</span></a>
+            <a href="#/sales/new" class="sidebar-nav-item" data-route="sales"><i class="fas fa-cash-register"></i> <span>Sales</span></a>
+            <a href="#/sales" class="sidebar-nav-item" data-route="sales-history"><i class="fas fa-history"></i> <span>Sales History</span></a>
+            <a href="#/notifications" class="sidebar-nav-item" data-route="notifications"><i class="fas fa-bell"></i> <span>Notifications</span></a>
+            <a href="#/reports/daily-sales" class="sidebar-nav-item" data-route="reports"><i class="fas fa-chart-line"></i> <span>Reports</span></a>
+            <a href="#/users" class="sidebar-nav-item" data-route="users" id="users-nav-item" style="display: none;"><i class="fas fa-users"></i> <span>Users</span></a>
+            <a href="#/settings" class="sidebar-nav-item" data-route="settings"><i class="fas fa-cog"></i> <span>Settings</span></a>
+        </nav>
     </aside>
 
-    <!-- Sidebar Overlay (mobile) -->
-    <div id="sidebar-overlay" class="sidebar-overlay hidden"></div>
-
-    <!-- ── MAIN WRAPPER ── -->
-    <div class="main-wrapper" id="main-wrapper">
-
-      <!-- ── TOPBAR ── -->
-      <header class="topbar" id="topbar" role="banner">
-        <div class="topbar-left">
-          <button class="hamburger-btn" id="hamburger-btn" aria-label="Toggle sidebar" aria-expanded="false">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-          <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
-            <ol class="breadcrumb-list" id="breadcrumb-list">
-              <li class="breadcrumb-item"><a href="#/dashboard">Home</a></li>
-            </ol>
-          </nav>
-        </div>
-
-        <div class="topbar-right">
-          <!-- Offline Banner -->
-          <div class="offline-badge hidden" id="offline-badge" role="status" aria-live="polite">
-            <i class="fa-solid fa-wifi-slash"></i> Offline
-          </div>
-
-          <!-- Notification Bell -->
-          <button class="topbar-icon-btn" id="notif-bell-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
-            <i class="fa-solid fa-bell"></i>
-            <span class="topbar-badge hidden" id="notif-badge">0</span>
-          </button>
-
-          <!-- Notification Dropdown -->
-          <div class="notif-dropdown hidden" id="notif-dropdown" role="menu" aria-label="Notifications panel">
-            <div class="notif-dropdown-header">
-              <span>Notifications</span>
-              <button class="btn btn-ghost btn-xs" id="mark-all-read-btn">Mark all read</button>
-            </div>
-            <ul class="notif-list" id="notif-list" role="list">
-              <li class="notif-empty">No notifications</li>
-            </ul>
-            <div class="notif-dropdown-footer">
-              <a href="#/notifications" class="notif-view-all">View all notifications</a>
-            </div>
-          </div>
-
-          <!-- User Avatar & Dropdown -->
-          <div class="user-menu-wrap">
-            <button class="user-avatar-btn" id="user-avatar-btn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
-              <div class="avatar avatar-md" id="topbar-user-avatar"></div>
-              <div class="user-info-text">
-                <span class="user-name" id="topbar-user-name">User</span>
-                <span class="user-role" id="topbar-user-role">Role</span>
-              </div>
-              <i class="fa-solid fa-chevron-down user-caret"></i>
-            </button>
-
-            <div class="user-dropdown hidden" id="user-dropdown" role="menu">
-              <div class="user-dropdown-header">
-                <div class="avatar avatar-lg" id="user-dropdown-avatar"></div>
-                <div>
-                  <p class="user-dropdown-name" id="user-dropdown-name"></p>
-                  <p class="user-dropdown-email" id="user-dropdown-email"></p>
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+            <div class="breadcrumb" id="breadcrumb"></div>
+            <div class="topbar-right">
+                <button id="notification-bell" class="notification-bell">
+                    <i class="fas fa-bell"></i>
+                    <span id="notif-badge" class="badge-notification">0</span>
+                </button>
+                <div class="user-menu">
+                    <div class="user-avatar" id="user-avatar">A</div>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="#/profile"><i class="fas fa-user"></i> My Profile</a>
+                        <a href="#" id="change-password-nav"><i class="fas fa-key"></i> Change Password</a>
+                        <hr>
+                        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
                 </div>
-              </div>
-              <hr class="dropdown-divider" />
-              <a href="#/settings?tab=profile" class="dropdown-item" role="menuitem">
-                <i class="fa-solid fa-building"></i> Business Profile
-              </a>
-              <a href="#/settings?tab=password" class="dropdown-item" role="menuitem">
-                <i class="fa-solid fa-key"></i> Change Password
-              </a>
-              <hr class="dropdown-divider" />
-              <button class="dropdown-item dropdown-item-danger" id="logout-btn" role="menuitem">
-                <i class="fa-solid fa-right-from-bracket"></i> Logout
-              </button>
             </div>
-          </div>
-
-        </div>
-      </header>
-
-      <!-- ── MAIN CONTENT AREA ── -->
-      <main id="app-content" class="app-content" role="main" aria-live="polite">
-        <!-- Routes render their HTML here -->
-      </main>
-
-    </div><!-- /.main-wrapper -->
-
-  </div><!-- /#app-shell -->
-
-  <!-- ═══════════════════════════════════════════════
-       GLOBAL MODAL CONTAINER
-  ═══════════════════════════════════════════════ -->
-  <div id="modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <div class="modal-overlay hidden" id="modal-overlay">
-      <div class="modal" id="modal" tabindex="-1">
-        <div class="modal-header">
-          <h3 class="modal-title" id="modal-title">Modal Title</h3>
-          <button class="modal-close-btn" id="modal-close-btn" aria-label="Close modal">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-        <div class="modal-body" id="modal-body">
-          <!-- Dynamic content -->
-        </div>
-        <div class="modal-footer" id="modal-footer">
-          <!-- Dynamic footer buttons -->
-        </div>
-      </div>
+        </header>
+        <main id="app-content">
+            <!-- Dynamic content injected by router -->
+            <div class="loading-skeleton">Loading...</div>
+        </main>
     </div>
-  </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════
-       TOAST CONTAINER
-  ═══════════════════════════════════════════════ -->
-  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true" role="status"></div>
+<!-- Modal Container -->
+<div id="modal-container" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title">Modal Title</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer" id="modal-footer"></div>
+    </div>
+</div>
 
-  <!-- ═══════════════════════════════════════════════
-       FULL-PAGE SPINNER OVERLAY
-  ═══════════════════════════════════════════════ -->
-  <div id="spinner-overlay" class="spinner-overlay hidden" aria-label="Loading" role="status">
-    <div class="spinner-ring"></div>
-  </div>
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container"></div>
 
-  <!-- ═══════════════════════════════════════════════
-       SCROLL TO TOP BUTTON
-  ═══════════════════════════════════════════════ -->
-  <button id="scroll-top-btn" class="scroll-top-btn hidden" aria-label="Scroll to top">
-    <i class="fa-solid fa-arrow-up"></i>
-  </button>
-
-  <!-- ═══════════════════════════════════════════════
-       CDN LIBRARIES (pinned versions)
-  ═══════════════════════════════════════════════ -->
-
-  <!-- Dexie.js 3.2.7 — IndexedDB wrapper -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.7/dexie.min.js"
-    integrity="sha512-yFGvHAMqMXiLNbZPt5UkHcHNUXhiYVLXK5FVZ4YnCFgPdFpSiJBNLGzlSRqHtKnkJ72ypnfkzU3gqPdBhECA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- Chart.js 4.4.1 -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
-    integrity="sha512-ZwR1/gSZM3ai6vCdI+LVF1zSq/5HznD3oD+sCoJrzXJ+yKjtkTIULIW0Rh6fbLdl60a9my9cLWv3bYwAuSuGQ=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- jsPDF 2.5.1 -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
-    integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- jsPDF-AutoTable 3.8.2 -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"
-    integrity="sha512-hzTArUMAFdBPHiRIGmtNHMBq0YLXn0saDHuEAR/EvnFB7S2M8MVGHqQDmqYv+hL0oD5ioWlMd8ETQwiFbFBTg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- PapaParse 5.4.1 -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"
-    integrity="sha512-dfX5uYVXzyU8+KHqj8bjo7UkOdg18PaOtpa48djpNbZHwExddghZ+ZmzWT06R5v6NSk3ZUbOo+tHdLxMJv/eg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- EmailJS SDK 4.3.3 -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/emailjs-com/4.3.3/email.min.js"
-    integrity="sha512-cJf4j0QGWqOPmJBUfvNAhFNT0bACvVzPKKcGw5XLJM1OQHKG+YzR1E2AKmMXjwBKjWJvvnxLbIgKEBSTvR0w=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-
-  <!-- ═══════════════════════════════════════════════
-       APPLICATION ENTRY POINT (ES6 modules)
-  ═══════════════════════════════════════════════ -->
-  <script type="module">
-    import { initApp } from './assets/js/app.js';
+<!-- Core JS Modules (type="module") -->
+<script type="module" src="assets/js/config.js"></script>
+<script type="module" src="assets/js/db.js"></script>
+<script type="module" src="assets/js/utils.js"></script>
+<script type="module" src="assets/js/auth.js"></script>
+<script type="module" src="assets/js/ui.js"></script>
+<script type="module" src="assets/js/router.js"></script>
+<script type="module" src="assets/js/dashboard.js"></script>
+<script type="module" src="assets/js/products.js"></script>
+<script type="module" src="assets/js/stock.js"></script>
+<script type="module" src="assets/js/sales.js"></script>
+<script type="module" src="assets/js/categories.js"></script>
+<script type="module" src="assets/js/suppliers.js"></script>
+<script type="module" src="assets/js/notifications.js"></script>
+<script type="module" src="assets/js/reports.js"></script>
+<script type="module" src="assets/js/users.js"></script>
+<script type="module" src="assets/js/settings.js"></script>
+<script type="module" src="assets/js/audit.js"></script>
+<script type="module">
+    import { initApp } from './assets/js/router.js';
     initApp();
-  </script>
-
-  <!-- ═══════════════════════════════════════════════
-       SERVICE WORKER REGISTRATION
-  ═══════════════════════════════════════════════ -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then(reg => console.log('[SW] Registered:', reg.scope))
-          .catch(err => console.warn('[SW] Registration failed:', err));
-      });
-    }
-  </script>
-
+</script>
 </body>
 </html>
