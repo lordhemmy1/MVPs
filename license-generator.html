@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stockify Licence Key Generator</title>
+  <style>
+    :root {
+      --primary: #4F46E5;
+      --surface: #FFFFFF;
+      --border: #E5E7EB;
+      --text: #111827;
+      --text-secondary: #6B7280;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F9FAFB;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: var(--text);
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.625rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+    }
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.625rem 1.25rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover {
+      background: #4338CA;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .hash-output {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #F3F4F6;
+      border-radius: 8px;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .hash-output strong {
+      color: var(--text);
+    }
+    .copy-btn {
+      background: #E5E7EB;
+      color: var(--text);
+      margin-left: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+    }
+    .copy-btn:hover {
+      background: #D1D5DB;
+    }
+    .instructions {
+      margin-top: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+    }
+    .error {
+      color: #DC2626;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔑 Stockify Licence Generator</h1>
+    <p style="margin:0 0 1.5rem 0; color: var(--text-secondary);">Generate the SHA-256 hash for a customer’s unique licence key. This tool is for the seller only.</p>
+    
+    <div class="form-group">
+      <label for="key-input">Enter Licence Key (e.g., STK-XXXX-XXXX-XXXX)</label>
+      <input type="text" id="key-input" placeholder="Enter the key you want to assign" autocomplete="off">
+    </div>
+    
+    <button id="generate-btn">Generate Hash</button>
+    <div id="error-msg" class="error"></div>
+
+    <div id="hash-output" class="hash-output hidden">
+      <strong>SHA-256 Hash:</strong><br>
+      <span id="hash-text"></span>
+      <button class="copy-btn" id="copy-btn">Copy</button>
+    </div>
+
+    <div class="instructions">
+      <p><strong>Instructions:</strong></p>
+      <ol>
+        <li>Enter the desired licence key (a unique code for the customer).</li>
+        <li>Click <strong>Generate Hash</strong>.</li>
+        <li>Copy the resulting hash and paste it into <code>config.js</code> as the value for <code>LICENCE_KEY_HASH</code>.</li>
+        <li>Deliver the original licence key (not the hash) to the customer. They will enter it in the activation screen.</li>
+      </ol>
+      <p><em>Never share the hash publicly – it is used for validation only.</em></p>
+    </div>
+  </div>
+
+  <script>
+    async function generateHash(key) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(key.trim());
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    document.getElementById('generate-btn').addEventListener('click', async () => {
+      const input = document.getElementById('key-input');
+      const key = input.value.trim();
+      const errorDiv = document.getElementById('error-msg');
+      const outputDiv = document.getElementById('hash-output');
+      const hashText = document.getElementById('hash-text');
+      
+      errorDiv.textContent = '';
+      outputDiv.classList.add('hidden');
+      
+      if (!key) {
+        errorDiv.textContent = 'Please enter a licence key.';
+        return;
+      }
+      
+      try {
+        const hash = await generateHash(key);
+        hashText.textContent = hash;
+        outputDiv.classList.remove('hidden');
+      } catch (err) {
+        errorDiv.textContent = 'Failed to generate hash. ' + err.message;
+      }
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const hashText = document.getElementById('hash-text').textContent;
+      if (!hashText) return;
+      navigator.clipboard.writeText(hashText).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1500);
+      });
+    });
+  </script>
+</body>
+</html>
